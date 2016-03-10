@@ -4,18 +4,20 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.smartcat</groupId>
     <artifactId>cassandra-migration-tool</artifactId>
-    <version>2.1.9.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
     <name>cassandra-migration-tool</name>
     <description>Cassandra schema migration tool</description>
     <url>https://github.com/smartcat-labs/cassandra-migration-tool-java</url>
 
     <properties>
-        <cassandra-driver.version>2.1.9</cassandra-driver.version>
+        <cassandra-driver.version>3.0.0</cassandra-driver.version>
         <cassandra-unit.version>2.1.9.2</cassandra-unit.version>
-        <guava.version>16.0.1</guava.version>
-        <slf4j.version>1.7.7</slf4j.version>
+        <guava.version>19.0-rc1</guava.version>
+        <slf4j.version>1.7.12</slf4j.version>
         <junit.version>4.9</junit.version>
+
+        <github.global.server>github</github.global.server>
     </properties>
 
     <dependencies>
@@ -49,20 +51,6 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <!-- Repository for snapshots -->
-        <snapshotRepository>
-           <id>ossrh</id>
-           <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <!-- Repository for releases -->
-        <repository>
-            <id>ossrh</id>
-            <name>Nexus Release Repository</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <resources>
             <resource>
@@ -78,17 +66,6 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
-            </plugin>
-            <plugin>
-              <groupId>org.sonatype.plugins</groupId>
-              <artifactId>nexus-staging-maven-plugin</artifactId>
-              <version>1.6.6</version>
-              <extensions>true</extensions>
-              <configuration>
-                <serverId>ossrh</serverId>
-                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-              </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -139,20 +116,30 @@
                     </execution>
                 </executions>
             </plugin>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-gpg-plugin</artifactId>
-              <version>1.6</version>
-              <executions>
-                  <execution>
-                      <id>sign-artifacts</id>
-                      <phase>verify</phase>
-                      <goals>
-                          <goal>sign</goal>
-                      </goals>
-                  </execution>
-              </executions>
-          </plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<configuration>
+					<message>Maven artifacts for ${project.version}</message>
+					<repositoryName>thrift</repositoryName>
+					<repositoryOwner>eamosov</repositoryOwner>
+					<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+					<branch>refs/heads/gh-pages</branch>
+					<includes>
+						<include>**/*</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+
         </plugins>
     </build>
 
@@ -163,13 +150,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <scm>
-        <connection>scm:git:git@github.com:smartcat-labs/cassandra-migration-tool-java.git</connection>
-        <developerConnection>scm:git:git@github.com:smartcat-labs/cassandra-migration-tool-java.git</developerConnection>
-        <url>https://github.com/smartcat-labs/cassandra-migration-tool-java</url>
-        <tag>HEAD</tag>
-    </scm>
 
     <developers>
         <developer>
@@ -185,5 +165,13 @@
             <organizationUrl>http://www.smartcat.io</organizationUrl>
         </developer>
     </developers>
+
+	<distributionManagement>
+		<repository>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${project.build.directory}/mvn-repo</url>
+		</repository>
+	</distributionManagement>
 
 </project>
